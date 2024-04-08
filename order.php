@@ -10,8 +10,18 @@
 	 		  - Execute the SQL query using the pdo function and fetch the result
 	 		  - Return the order info
 	 */
-
+	function get_order_and_info(PDO $pdo, $email, $orderNum) {
+		$sql = "SELECT *
+				FROM orders
+				JOIN customer ON orders.custnum = customer.custnum
+				WHERE customer.email = :email AND orders.ordernum = :orderNum";
 	
+		// Execute the SQL query using the pdo function and fetch the result
+		$info = pdo($pdo, $sql, ['email' => $email,'orderNum'=>$orderNum])->fetch();		// Associative array where 'id' is the key and $id is the value. Used to bind the value of $id to the placeholder :id in  SQL query.
+		return $info;
+	}
+	
+	$orderInfo = null;
 	// Check if the request method is POST (i.e, form submitted)
 	if ($_SERVER["REQUEST_METHOD"] == "POST") {
 		
@@ -20,7 +30,7 @@
 
 		// Retrieve the value of the 'orderNum' field from the POST data
 		$orderNum = $_POST['orderNum'];
-
+		$orderInfo = get_order_and_info($pdo, $email, $orderNum);
 
 		/*
 		 * TO-DO: Retrieve info about order from the db using provided PDO connection
@@ -89,19 +99,19 @@
 				  -- TO-DO: Check if variable holding order is not empty. Make sure to replace null with your variable!
 				  -->
 				
-				<?php if (!empty(null)): ?>
+				<?php if (!empty($orderInfo)): ?>
 					<div class="order-details">
 
 						<!-- 
 				  		  -- TO DO: Fill in ALL the placeholders for this order from the db
   						  -->
 						<h1>Order Details</h1>
-						<p><strong>Name: </strong> <?= '' ?></p>
-				        	<p><strong>Username: </strong> <?= '' ?></p>
-				        	<p><strong>Order Number: </strong> <?= '' ?></p>
-				        	<p><strong>Quantity: </strong> <?= '' ?></p>
-				        	<p><strong>Date Ordered: </strong> <?= '' ?></p>
-				        	<p><strong>Delivery Date: </strong> <?= '' ?></p>
+						<p><strong>Name: </strong> <?= ($orderInfo['cname']) ?></p>
+				        	<p><strong>Username: </strong> <?= ($orderInfo['username']) ?></p>
+				        	<p><strong>Order Number: </strong> <?= ($orderInfo['ordernum']) ?></p>
+				        	<p><strong>Quantity: </strong> <?= ($orderInfo['quantity']) ?></p>
+				        	<p><strong>Date Ordered: </strong> <?= ($orderInfo['date_ordered']) ?></p>
+				        	<p><strong>Delivery Date: </strong> <?= ($orderInfo['date_deliv']) ?></p>
 				      
 					</div>
 				<?php endif; ?>
